@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from store.models import Product
 
 class Cart():
     def __init__(self, request):
@@ -27,3 +28,11 @@ class Cart():
     def __len__(self):
         return sum(item['quantity'] for item in self.cart.values())
         # return len(self.cart)
+        
+    def get_prods(self):
+        # Get ids from cart
+        product_ids = self.cart.keys()
+        # Use the ids to get the product objects and add them to the cart
+        products = Product.objects.filter(id__in=product_ids)
+        # return the looked-up products
+        return products

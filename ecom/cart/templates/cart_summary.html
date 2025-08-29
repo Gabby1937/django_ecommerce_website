@@ -10,7 +10,7 @@
     </div>
 </header>
 
-<div class="container">
+{% comment %} <div class="container">
     <h2>Your Cart</h2>
     {% if cart %}
         <table class="table">
@@ -39,7 +39,45 @@
     {% else %}
         <p>Your cart is empty.</p>
     {% endif %}
+</div> {% endcomment %}
+<br/>
+<div class="container">
+    {% if cart_products %}
+    {% for product in cart_products %}
+        <br/>
+
+        <div class="container px-4 px-lg-5">
+  <div class="card mb-3">
+  <div class="row g-0">
+    <div class="col-md-4">
+      <img src="{{ product.image.url }}" class="img-fluid rounded-start" alt="...">
+    </div>
+    <div class="col-md-8">
+      <div class="card-body">
+        <center><h2 class="card-title">{{ product.name }}</h2>
+        {% if product.is_sale %}
+            <h4><strike>${{ product.price }}</strike> &nbsp; <span class="badge bg-danger">${{ product.sale_price }}</span></h4>
+        {% else %}
+            <h4>${{ product.price }}</h4>
+        {% endif %}
+        <h5 class="card-title">{{ product.name }}</h5>
+        <p class="card-text">{{ product.description }}</p>
+        <p class="card-text"><small class="text-body-secondary">Last updated 3 mins ago</small></p>
+        
+        <a href="{% url 'home' %}" class="btn btn-secondary">Home</a>
+        </center>
+      </div>
+    </div>
+  </div>
 </div>
+    </div>
+
+    {% endfor %}
+    {% else %}
+    There's Nothing In Your Cart...
+    {% endif %}
+</div>
+
 
 <br/>
 <br/>
