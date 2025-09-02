@@ -15,19 +15,21 @@ class Cart():
         # Make sure cart is available on all sessions
         self.cart = cart
         
-    def add(self, product, quantity=1): # Add product to cart or update its quantity
+    def add(self, product, quantity): # Add product to cart or update its quantity
         product_id = str(product.id)
+        product_qty = str(quantity)
 
         if product_id in self.cart:
-            self.cart[product_id]['quantity'] += quantity
+            #self.cart[product_id]['quantity'] += quantity
+            pass
         else:
-            self.cart[product_id] = {'price': str(product.price), 'quantity': quantity}
+            self.cart[product_id] = int(product_qty)
         
         self.session.modified = True
         
     def __len__(self):
-        return sum(item['quantity'] for item in self.cart.values())
-        # return len(self.cart)
+        #return sum(item['quantity'] for item in self.cart.values())
+        return len(self.cart)
         
     def get_prods(self):
         # Get ids from cart
@@ -36,3 +38,20 @@ class Cart():
         products = Product.objects.filter(id__in=product_ids)
         # return the looked-up products
         return products
+    
+    def get_quants(self):
+        quantities = self.cart
+        return quantities
+    
+    def update(self, product, quantity):
+        product_id = str(product)
+        product_qty = int(quantity)
+            
+        ourcart = self.cart
+        
+        ourcart[product_id] = product_qty
+        
+        self.session.modified = True
+        
+        thing = self.cart
+        return thing

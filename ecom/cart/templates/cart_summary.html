@@ -10,36 +10,6 @@
     </div>
 </header>
 
-{% comment %} <div class="container">
-    <h2>Your Cart</h2>
-    {% if cart %}
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Product</th>
-                    <th>Price</th>
-                    <th>Quantity</th>
-                    <th>Total</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for product_id, item in cart.cart.items %}
-                    {% with product=product_id|lookup:cart.cart %}
-                        <tr>
-                            <td>{{ product.name }}</td>
-                            <td>${{ item.price }}</td>
-                            <td>{{ item.quantity }}</td>
-                            <td>${{ item.price|floatformat:2|multiply:item.quantity }}</td>
-                        </tr>
-                    {% endwith %}
-                {% endfor %}
-            </tbody>
-        </table>
-        <p>Total Items: {{ cart|length }}</p>
-    {% else %}
-        <p>Your cart is empty.</p>
-    {% endif %}
-</div> {% endcomment %}
 <br/>
 <div class="container">
     {% if cart_products %}
@@ -62,9 +32,37 @@
         {% endif %}
         <h5 class="card-title">{{ product.name }}</h5>
         <p class="card-text">{{ product.description }}</p>
+          <br/>
+          <div class="row justify-content-center">
+          <div class="col-md-2">Quantity:</div>
+          <div class="col-md-2">
+        <select class="form-select form-select-sm" 
+        id="select{{product.id}}">
+          
+            
+            {% for key, value in quantities.items %} 
+              {% if key == product.id|slugify %}
+                <option selected>{{ value }}</option>
+              {% endif %}
+            {% endfor %}
+
+          
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+          <option value="5">5</option>
+        </select>
+        </div>
+        </div>
+          <br/>
+
         <p class="card-text"><small class="text-body-secondary">Last updated 3 mins ago</small></p>
         
         <a href="{% url 'home' %}" class="btn btn-secondary">Home</a>
+        <button type="button" data-index="{{ product.id }}" 
+        class="btn btn-secondary update-cart">Update</button>
+
         </center>
       </div>
     </div>
@@ -89,4 +87,32 @@
 <br/>
 <br/>
 <br/>
+
+
+<script>
+    $(document).on('click', '.update-cart', function(e)
+        {
+            e.preventDefault();
+            var productid = $(this).data('index');
+
+            $.ajax({
+                type: 'POST',
+                url: '{% url 'cart_update' %}',
+                data: {
+                    product_id: $(this).data('index'),
+                    product_qty: $('#select' + productid + ' option:selected').val(),
+                    csrfmiddlewaretoken: '{{ csrf_token }}',
+                    action: 'post'
+                },
+                success: function(json){
+                  //console.log(json)
+                  //document.getElementById("cart_quantity").textContent = json.qty
+                  location.reload();
+                },
+                error: function(xhr, errmsg, err){
+                    alert("Error adding item to cart")
+                }
+            });
+        });
+</script>
 {% endblock %}
