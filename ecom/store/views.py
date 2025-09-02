@@ -68,3 +68,7 @@ def category(request, foo):
     except:
         messages.success(request, ("No products found in this category"))
         return redirect('home')
+    
+def category_summary(request):
+    categories = Category.objects.all()
+    return render(request, 'category_summary.html', {'categories': categories})
