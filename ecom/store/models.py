@@ -13,9 +13,11 @@ class Profile(models.Model):
     state = models.CharField(max_length=100, blank=True)
     zipcode = models.CharField(max_length=15, blank=True)
     country = models.CharField(max_length=100, blank=True)
+    old_cart = models.TextField(blank=True, null=True)
     
     def __str__(self):
         return self.user.username
+    
     
 def create_profile(sender, instance, created, **kwargs):
     if created:
