@@ -4,7 +4,7 @@ from store.models import Product
 
 # Create your models here.
 class ShippingAddress(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
+    user = models.ForeignKey('auth.User', on_delete=models.CASCADE, null=True, blank=True)
     shipping_full_name = models.CharField(max_length=255, blank=True)
     shipping_email_address = models.CharField(max_length=255, blank=True)
     shipping_address1 = models.CharField(max_length=255, blank=True)

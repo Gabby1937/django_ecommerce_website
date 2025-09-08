@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<header class="bg-dark py-5">
+    <div class="container px-4 px-lg-5 my-5">
+        <div class="text-center text-white">
+            <h1 class="display-4 fw-bolder">Checkout</h1>
+            <p class="lead fw-normal text-white-50 mb-0">Review Your Order...</p>
+        </div>
+    </div>
+</header>
+
+<br/>
+<div class="container">
+    <div class="row">
+        <div class="col-md-6 offset-md-3">
+            <div class="card">
+            <div class="card-header">
+                Order Summary
+            </div>
+            <div class="card-body">
+                {% for product in cart_products %}
+                    {{product.name}} - 
+                    {% if product.is_sale %}
+                        <strike>${{ product.price }}</strike> &nbsp; <span class="badge bg-danger">${{ product.sale_price }}</span>
+                    {% else %}
+                        ${{ product.price }}
+                    {% endif %}
+                    <br/>
+                    <small>Quantity: 
+                    {% for key, value in quantities.items %} 
+                      {% if key == product.id|slugify %}
+                        {{ value }}
+                      {% endif %}
+                    {% endfor %}
+                    </small>
+                    <br/><br/>
+                {% endfor %}
+                <br/><br/>
+                <strong>TOTAL: ${{ totals }}</strong>
+                <br/><br/>
+                <a href="{% url 'cart_summary' %}"class="btn btn-sm btn-outline-secondary">Update Items</a>
+                <br/><br/>
+                
+            </div>
+            </div>
+            <br/><br/>
+                <div class="card">
+                    <div class="card-header">
+                        Shipping Info
+                    </div>
+                    <div class="card-body">
+                        <form method="post">
+                            {% csrf_token %}
+                            {{ shipping_form.as_p }}
+                    </div>
+                </div>
+        </div>
+    </div>
+    <br/><br/>
+    <a href="#" class="btn btn-primary btn-lg btn-block">Proceed to Payment</a>
+    <br/><br/>
+</div>
+
+
+<br/>
+
+<br/>
+<br/>
+
+
+<script>
+ 
+</script>
+{% endblock %}
