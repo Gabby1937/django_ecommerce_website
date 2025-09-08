@@ -1,10 +1,11 @@
 from django.db import models
 from django.contrib.auth.models import User
 from store.models import Product
+from django.db.models.signals import post_save
 
 # Create your models here.
 class ShippingAddress(models.Model):
-    user = models.ForeignKey('auth.User', on_delete=models.CASCADE, null=True, blank=True)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True)
     shipping_full_name = models.CharField(max_length=255, blank=True)
     shipping_email_address = models.CharField(max_length=255, blank=True)
     shipping_address1 = models.CharField(max_length=255, blank=True)
@@ -20,6 +21,15 @@ class ShippingAddress(models.Model):
         
     def __str__(self):
         return f'Shipping Address - {str(self.id)}'
+    
+def create_shipping(sender, instance, created, **kwargs):
+    if created:
+        user_shipping = ShippingAddress(user=instance)
+        user_shipping.save()
+        
+# Automate the profile thing
+post_save.connect(create_shipping, sender=User)
+
     
 #Create order model
 class Order(models.Model):

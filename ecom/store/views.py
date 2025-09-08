@@ -18,25 +18,53 @@ def search(request):
     else:
         return render(request, 'search.html', {})
 
+# def update_info(request):
+#     if request.user.is_authenticated:
+#         current_user = Profile.objects.get(user__id=request.user.id)
+#         shipping_user = ShippingAddress.objects.get(user__id=request.user.id)
+#         shipping_form = ShippingAddressForm(request.POST or None, instance=shipping_user)
+#         form = UserInfoForm(request.POST or None, instance=current_user)
+        
+#         if form.is_valid() or shipping_form.is_valid():
+#             form.save()
+#             shipping_form.save()
+            
+#             messages.success(request, ("Your info was updated successfully"))
+#             return redirect('home')
+#         return render(request, 'update_info.html', {'form': form, 'shipping_form': shipping_form})
+    
+#     else:
+#         messages.success(request, ("You must be logged in to view this page"))
+#         return redirect('home')
+    
 def update_info(request):
     if request.user.is_authenticated:
         current_user = Profile.objects.get(user__id=request.user.id)
-        shipping_user = ShippingAddress.objects.get(user__id=request.user.id)
+        # Use get_or_create to handle missing or single ShippingAddress
+        shipping_user, created = ShippingAddress.objects.get_or_create(user=request.user)
         shipping_form = ShippingAddressForm(request.POST or None, instance=shipping_user)
         form = UserInfoForm(request.POST or None, instance=current_user)
         
-        if form.is_valid() or shipping_form.is_valid():
-            form.save()
-            shipping_form.save()
-            
-            messages.success(request, ("Your info was updated successfully"))
-            return redirect('home')
+        if request.method == 'POST':
+            if form.is_valid() and shipping_form.is_valid():
+                form.save()
+                shipping_form_instance = shipping_form.save(commit=False)
+                shipping_form_instance.user = request.user  # Ensure user is set
+                shipping_form_instance.save()
+                messages.success(request, "Your info was updated successfully")
+                return redirect('home')
+            else:
+                for field, errors in form.errors.items():
+                    for error in errors:
+                        messages.error(request, f"Profile Info - {field}: {error}")
+                for field, errors in shipping_form.errors.items():
+                    for error in errors:
+                        messages.error(request, f"Shipping Info - {field}: {error}")
+        
         return render(request, 'update_info.html', {'form': form, 'shipping_form': shipping_form})
-    
     else:
-        messages.success(request, ("You must be logged in to view this page"))
+        messages.error(request, "You must be logged in to view this page")
         return redirect('home')
-    
     
 def update_password(request):
     if request.user.is_authenticated:
@@ -113,18 +141,43 @@ def register_user(request):
     if request.method == "POST":
         form = SignUpForm(request.POST)
         if form.is_valid():
-            form.save()
+            user = form.save()
             username = form.cleaned_data['username']
             password = form.cleaned_data['password1']
-            user = authenticate(username=username, password=password)
-            login(request, user)
-            messages.success(request, ("Username Created - Please complete your profile info"))
-            return redirect('update_info')
+            user = authenticate(request, username=username, password=password)
+            if user is not None:
+                login(request, user)
+                # Create ShippingAddress for the new user
+                ShippingAddress.objects.get_or_create(user=user)
+                messages.success(request, "Username created successfully! Please complete your profile info.")
+                return redirect('update_info')
+            else:
+                messages.error(request, "Authentication failed. Please try again.")
         else:
-            messages.success(request, ("Oops! Something went wrong - please try again..."))
-            return redirect('register')
-    else:
-        return render(request, 'register.html', {'form': form})
+            # Form is invalid, errors will be displayed in the template
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f"{field}: {error}")
+    return render(request, 'register.html', {'form': form})
+
+# def register_user(request):
+#     form = SignUpForm()
+#     if request.method == "POST":
+#         form = SignUpForm(request.POST)
+#         if form.is_valid():
+#             form.save()
+#             username = form.cleaned_data['username']
+#             password = form.cleaned_data['password1']
+#             user = authenticate(username=username, password=password)
+#             login(request, user)
+#             ShippingAddress.objects.create(user=user)
+#             messages.success(request, ("Username Created - Please complete your profile info"))
+#             return redirect('update_info')
+#         else:
+#             messages.success(request, ("Oops! Something went wrong - please try again..."))
+#             return redirect('register')
+#     else:
+#         return render(request, 'register.html', {'form': form})
     
     
 def product(request, pk):
