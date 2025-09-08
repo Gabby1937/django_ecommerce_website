@@ -17,6 +17,8 @@ class ShippingAddressForm(forms.ModelForm):
         fields = ['shipping_full_name', 'shipping_email_address', 'shipping_address1', 'shipping_address2', 'shipping_city', 'shipping_state', 'shipping_zipcode', 'shipping_country']
         exclude = ['user']
         
+    
+        
     # def __init__(self, *args, **kwargs):
     #     super(ShippingAddressForm, self).__init__(*args, **kwargs)
     #     for field in self.fields:
