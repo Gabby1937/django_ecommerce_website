@@ -149,12 +149,31 @@ class Cart():
         quantities = self.cart
         return quantities
     
-    def delete(self, product):
-        product_id = str(product)
-        # Delete from Dictionary/Cart
-        if product_id in self.cart:
-            del self.cart[product_id]
-        self.session.modified = True
+    # def delete(self, product):
+    #     product_id = str(product)
+    #     # Delete from Dictionary/Cart
+    #     if product_id in self.cart:
+    #         del self.cart[product_id]
+    #     self.session.modified = True
             
         # thing = self.cart
         # return thing
+        
+    def delete(self, product):
+        product_id = str(product)
+        if product_id in self.cart:
+            del self.cart[product_id]
+        self.session.modified = True
+        if self.request.user.is_authenticated:
+            current_user = Profile.objects.get(user__id=self.request.user.id)
+            current_user.old_cart = json.dumps(self.cart)
+            current_user.save()
+
+    def clear(self):
+        self.cart = {}
+        self.session['session_key'] = {}
+        self.session.modified = True
+        if self.request.user.is_authenticated:
+            current_user = Profile.objects.get(user__id=self.request.user.id)
+            current_user.old_cart = ''
+            current_user.save()

@@ -5,8 +5,78 @@ from payment.models import ShippingAddress, Order, OrderItem
 from django.contrib.auth.models import User
 from django.contrib import messages
 from store.models import Product
+import datetime
 
 # Create your views here.
+
+def orders(request, pk):
+    if request.user.is_authenticated and request.user.is_superuser:
+        order = Order.objects.get(id=pk)
+        # Get the order items
+        items = OrderItem.objects.filter(order=pk)
+        
+        if request.POST:
+            status = request.POST['shipping_status']
+            # Check if true or false
+            if status == 'true':
+                # Get the order
+                order = Order.objects.filter(id=pk)
+                # Update the status
+                now = datetime.datetime.now()
+                order.update(shipped=True, date_shipped=now)
+            else:
+                # Get the order
+                order = Order.objects.filter(id=pk)
+                # Update the status
+                order.update(shipped=False)
+            messages.success(request, "Shipping Status Updated")
+            return redirect('home')
+            
+        return render(request, 'payment/orders.html', {"order":order, "items": items})
+    
+    else:
+        messages.success(request, "Access Denied!")
+        return redirect('home')
+
+def not_shipped_dash(request):
+    if request.user.is_authenticated and request.user.is_superuser:
+        orders = Order.objects.filter(shipped=False)
+        if request.POST:
+            status = request.POST['shipping_status']
+            num = request.POST['num']
+            # Grab the order
+            order = Order.objects.filter(id=num)
+            # Grab Date and Time
+            now = datetime.datetime.now()
+            # Update Order
+            order.update(shipped=True, date_shipped=now)
+            # Redirect
+            messages.success(request, "Shipping Status Updated")
+            return redirect('home')
+        return render(request, 'payment/not_shipped_dash.html', {"orders": orders})
+    else:
+        messages.success(request, "Access Denied!")
+        return redirect('home')
+
+def shipped_dash(request):
+    if request.user.is_authenticated and request.user.is_superuser:
+        orders = Order.objects.filter(shipped=True)
+        if request.POST:
+            status = request.POST['shipping_status']
+            num = request.POST['num']
+            # Grab the order
+            order = Order.objects.filter(id=num)
+            # Grab Date and Time
+            now = datetime.datetime.now()
+            # Update Order
+            order.update(shipped=False, date_shipped=now)
+            # Redirect
+            messages.success(request, "Shipping Status Updated")
+            return redirect('home')
+        return render(request, 'payment/shipped_dash.html', {"orders": orders})
+    else:
+        messages.success(request, "Access Denied!")
+        return redirect('home')
 
 def process_order(request):
     if request.POST:
@@ -60,11 +130,12 @@ def process_order(request):
                         create_order_item = OrderItem(order_id=order_id, product_id=product_id, user=user, quantity=value, price=price)
                         create_order_item.save()
                         
-            # Delete our cart
-            for key in list(request.session.keys()):
-                if key == "session_key":
-                    # Delete the key
-                    del request.sessions[key]
+            # Clear the cart
+            cart.clear()
+            # Clear shipping session data
+            if 'my_shipping' in request.session:
+                del request.session['my_shipping']
+            request.session.modified = True
                         
             messages.success(request, "Order Placed!")
             return redirect('home')
@@ -97,11 +168,12 @@ def process_order(request):
                         create_order_item = OrderItem(order_id=order_id, product_id=product_id, quantity=value, price=price)
                         create_order_item.save()
                         
-            # Delete our cart
-            for key in list(request.session.keys()):
-                if key == "session_key":
-                    # Delete the key
-                    del request.sessions[key]
+            # Clear the cart
+            cart.clear()
+            # Clear shipping session data
+            if 'my_shipping' in request.session:
+                del request.session['my_shipping']
+            request.session.modified = True
                         
                         
             messages.success(request, "Order Placed!")
@@ -112,32 +184,33 @@ def process_order(request):
         return redirect('home')
 
 def billing_info(request):
-    
-    if request.POST:
+    if request.method == 'POST':
         cart = Cart(request)
         cart_products = cart.get_prods()
         quantities = cart.get_quants()
         totals = cart.cart_total()
         
-        # Create a session with Shipping Info
-        my_shipping = request.POST
-        request.session['my_shipping'] = my_shipping 
-        
-        if request.user.is_authenticated:
-            # Get The Billing Form
+        shipping_form = ShippingAddressForm(request.POST)
+        if shipping_form.is_valid():
+            request.session['my_shipping'] = shipping_form.cleaned_data
             billing_form = PaymentForm()
-            return render(request, 'payment/billing_info.html', {'cart_products': cart_products, 
-                                                     'quantities': quantities, 'totals':totals, 
-                                                     'shipping_info': request.POST, "billing_form": billing_form})
+            return render(request, 'payment/billing_info.html', {
+                'cart_products': cart_products,
+                'quantities': quantities,
+                'totals': totals,
+                'shipping_info': shipping_form.cleaned_data,
+                'billing_form': billing_form
+            })
         else:
-            # Get The Billing Form
-            billing_form = PaymentForm()
-            return render(request, 'payment/billing_info.html', {'cart_products': cart_products, 
-                                                     'quantities': quantities, 'totals':totals, 
-                                                     'shipping_info': request.POST, "billing_form": billing_form})  
-        shipping_form = request.POST       
+            messages.error(request, "Invalid shipping information")
+            return render(request, 'payment/checkout.html', {
+                'cart_products': cart_products,
+                'quantities': quantities,
+                'totals': totals,
+                'shipping_form': shipping_form
+            })
     else:
-        messages.success(request, "Access Denied")
+        messages.error(request, "Access denied")
         return redirect('home')
 
 
@@ -152,11 +225,20 @@ def checkout(request):
     totals = cart.cart_total()
     
     if request.user.is_authenticated:
-        # Check out as Logged in User
-        shipping_user = ShippingAddress.objects.get(user__id=request.user.id)
+        shipping_user, created = ShippingAddress.objects.get_or_create(user=request.user)
         shipping_form = ShippingAddressForm(request.POST or None, instance=shipping_user)
-        return render(request, 'payment/checkout.html', {'cart_products': cart_products, 'quantities': quantities, 'totals':totals, 'shipping_form': shipping_form})
+        if request.method == 'POST' and shipping_form.is_valid():
+            shipping_form_instance = shipping_form.save(commit=False)
+            shipping_form_instance.user = request.user
+            shipping_form_instance.save()
+            request.session['my_shipping'] = shipping_form.cleaned_data
+            return redirect('billing_info')
     else:
-        # Check out as Guest User
         shipping_form = ShippingAddressForm(request.POST or None)
-        return render(request, 'payment/checkout.html', {'cart_products': cart_products, 'quantities': quantities, 'totals':totals, 'shipping_form': shipping_form})
+        if request.method == 'POST' and shipping_form.is_valid():
+            request.session['my_shipping'] = shipping_form.cleaned_data
+            return redirect('billing_info')
+        
+    return render(request, 'payment/checkout.html', {'cart_products': cart_products, 
+                                                     'quantities': quantities, 'totals':totals, 
+                                                     'shipping_form': shipping_form})
