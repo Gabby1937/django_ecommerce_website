@@ -1,5 +1,5 @@
 from django.urls import path
-from ecom import settings
+from django.conf import settings
 from . import views
 
 urlpatterns = [
