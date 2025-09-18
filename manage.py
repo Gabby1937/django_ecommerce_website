@@ -6,7 +6,7 @@ import sys
 
 def main():
     """Run administrative tasks."""
-    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'ecom.settings')
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'ecom.ecom.settings')
     # Add /app/ to Python path
     sys.path.append('/app/')
     try:
