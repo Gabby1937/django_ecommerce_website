@@ -1,1 +1,1 @@
-web: python manage.py migrate --noinput && python manage.py collectstatic --noinput && gunicorn ecom.wsgi:application --bind 0.0.0.0:$PORT
+web: python manage.py migrate --noinput && python manage.py collectstatic --noinput && gunicorn ecom.ecom.wsgi:application --bind 0.0.0.0:$PORT
