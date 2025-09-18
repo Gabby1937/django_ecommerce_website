@@ -17,6 +17,7 @@ from dotenv import load_dotenv
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 # BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Base directory: django_ecom/
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Load our environmental variable
@@ -79,7 +80,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'ecom.wsgi.application'
+WSGI_APPLICATION = 'ecom.ecom.wsgi.application'
 
 
 # Database
