@@ -62,7 +62,8 @@ MIDDLEWARE = [
     'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 
-ROOT_URLCONF = 'ecom.urls'
+# URLs
+ROOT_URLCONF = 'ecom.ecom.urls'  # Updated to reflect ecom/ecom/urls.py
 
 TEMPLATES = [
     {
