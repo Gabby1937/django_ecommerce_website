@@ -1,4 +1,5 @@
 from django.urls import path
+from ecom import settings
 from . import views
 
 urlpatterns = [

@@ -6,6 +6,7 @@ from django.contrib.auth.models import User
 from django.contrib import messages
 from store.models import Product
 import datetime
+from ecom import settings
 
 # Create your views here.
 

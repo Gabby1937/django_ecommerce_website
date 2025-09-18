@@ -3,6 +3,7 @@ from .cart import Cart
 from store.models import Product
 from django.http import JsonResponse
 from django.contrib import messages
+from ecom import settings
 
 # Create your views here.
 def cart_summary(request):

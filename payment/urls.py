@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views
+from ecom import settings
 
 urlpatterns = [
     path('payment_success/', views.payment_success, name='payment_success'),

@@ -9,6 +9,7 @@ from payment.models import ShippingAddress
 from payment.forms import ShippingAddressForm
 from django import forms
 from django.db.models import Q
+from ecom import settings
 
 def search(request):
     if request.method == "POST":
