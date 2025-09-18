@@ -30,7 +30,7 @@ SECRET_KEY = 'django-insecure-b2#86pvb0=nyknki+j2j9(rlywr6pny4t8ika!l%9tswf42s2j
 DEBUG = True
 
 ALLOWED_HOSTS = ['djangoecommercewebsite-production.up.railway.app','https://djangoecommercewebsite-production.up.railway.app']
-CSRF_TRUSTED_ORIGINS = ['djangoecommercewebsite-production.up.railway.app','https://djangoecommercewebsite-production.up.railway.app']
+CSRF_TRUSTED_ORIGINS = ['https://djangoecommercewebsite-production.up.railway.app']
 
 
 # Application definition
