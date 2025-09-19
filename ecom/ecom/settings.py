@@ -31,9 +31,9 @@ load_dotenv()
 SECRET_KEY = 'django-insecure-b2#86pvb0=nyknki+j2j9(rlywr6pny4t8ika!l%9tswf42s2j'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = ['djangoecommercewebsite-production.up.railway.app','https://djangoecommercewebsite-production.up.railway.app']
+ALLOWED_HOSTS = ['*','djangoecommercewebsite-production.up.railway.app','https://djangoecommercewebsite-production.up.railway.app']
 CSRF_TRUSTED_ORIGINS = ['https://djangoecommercewebsite-production.up.railway.app']
 
 
@@ -109,6 +109,22 @@ else:
     }
 }
 
+
+# if os.environ.get('DATABASE_URL'):
+#     DATABASES = {
+#         'default': dj_database_url.parse(
+#             os.environ['DATABASE_URL'],
+#             conn_max_age=600,
+#             engine='django.db.backends.postgresql',
+#         )
+#     }
+# else:
+#     DATABASES = {
+#         'default': {
+#             'ENGINE': 'django.db.backends.sqlite3',
+#             'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+#         }
+#     }
 
 
 # Password validation

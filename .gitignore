@@ -18,3 +18,4 @@ db.sqlite3
 bash.exe.stackdump
 staticfiles/
 media/
+env
