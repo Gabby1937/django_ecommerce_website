@@ -30,21 +30,14 @@ load_dotenv()
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-b2#86pvb0=nyknki+j2j9(rlywr6pny4t8ika!l%9tswf42s2j'
 
-# SECURITY WARNING: don't run with debug turned on in production!
-ENVIRONMENT = 'production'
+ENVIRONMENT = os.environ.get('ENVIRONMENT', 'production')  # Default to production
+DEBUG = ENVIRONMENT != 'production'  # Only True in development
 
-
-DEBUG = False
-
-if ENVIRONMENT == 'development':
-    DEBUG=False
-else:
-    DEBUG=True
-
-if ENVIRONMENT == 'production' or DEBUG == True:
-    pass
-
-ALLOWED_HOSTS = ['*','djangoecommercewebsite-production.up.railway.app','https://djangoecommercewebsite-production.up.railway.app']
+ALLOWED_HOSTS = [
+    'djangoecommercewebsite-production.up.railway.app',
+    'localhost',  # For local development
+    '127.0.0.1',  # For local development
+]
 CSRF_TRUSTED_ORIGINS = ['https://djangoecommercewebsite-production.up.railway.app']
 
 
@@ -96,29 +89,54 @@ TEMPLATES = [
 WSGI_APPLICATION = 'ecom.ecom.wsgi.application'
 
 
-# Database: Use DATABASE_URL if present (Railway provides it)
-if os.environ.get('DATABASE_URL'):
-    DATABASES = {
-        'default': dj_database_url.parse(
-            os.environ['DATABASE_URL'],
-            conn_max_age=600,
-            engine='django.db.backends.postgresql',
-        )
-    }
-else:
-    # Local fallback to SQLite
-    DATABASES = {
-        'default': {
-        # 'ENGINE': 'django.db.backends.sqlite3',
-        # 'NAME': BASE_DIR / 'db.sqlite3',
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'railway',
-        'USER': 'postgres',
-        'PASSWORD': os.environ['DB_PASSWORD_YO'],
-        'HOST': 'switchback.proxy.rlwy.net',
-        'PORT': '47050',
-    }
+# settings.py
+DATABASES = {
+    'default': dj_database_url.parse(
+        os.environ.get('DATABASE_URL'),
+        conn_max_age=600,
+        engine='django.db.backends.postgresql',
+    )
 }
+
+
+# settings.py
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'DEBUG',
+    },
+}
+
+# # Database: Use DATABASE_URL if present (Railway provides it)
+# if os.environ.get('DATABASE_URL'):
+#     DATABASES = {
+#         'default': dj_database_url.parse(
+#             os.environ['DATABASE_URL'],
+#             conn_max_age=600,
+#             engine='django.db.backends.postgresql',
+#         )
+#     }
+# else:
+#     # Local fallback to SQLite
+#     DATABASES = {
+#         'default': {
+#         # 'ENGINE': 'django.db.backends.sqlite3',
+#         # 'NAME': BASE_DIR / 'db.sqlite3',
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'railway',
+#         'USER': 'postgres',
+#         'PASSWORD': os.environ['DB_PASSWORD_YO'],
+#         'HOST': 'switchback.proxy.rlwy.net',
+#         'PORT': '47050',
+#     }
+# }
 
 
 # if os.environ.get('DATABASE_URL'):
