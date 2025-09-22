@@ -2,6 +2,7 @@ from django.db import models
 import datetime
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
+from cloudinary.models import CloudinaryField
 
 class Profile(models.Model):
     user = models.OneToOneField('auth.User', on_delete=models.CASCADE)
@@ -52,7 +53,7 @@ class Product(models.Model):
     price = models.DecimalField(default=0, max_digits=7, decimal_places=2)
     category = models.ForeignKey(Category, default=1, on_delete=models.CASCADE)
     description = models.CharField(max_length=250, default='', blank=True, null=True)
-    image = models.ImageField(upload_to='uploads/product/')
+    image = CloudinaryField('image', folder='Uploads/product', blank=True, null=True)
     
     is_sale = models.BooleanField(default=False)
     sale_price = models.DecimalField(default=0, max_digits=7, decimal_places=2)
