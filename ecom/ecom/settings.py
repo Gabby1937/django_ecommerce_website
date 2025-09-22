@@ -32,9 +32,17 @@ SECRET_KEY = 'django-insecure-b2#86pvb0=nyknki+j2j9(rlywr6pny4t8ika!l%9tswf42s2j
 
 # SECURITY WARNING: don't run with debug turned on in production!
 ENVIRONMENT = os.environ['ENVIRONMENT']
+
+
 DEBUG = False
+
+if ENVIRONMENT == 'development':
+    DEBUG=False
+else:
+    DEBUG=True
+
 if ENVIRONMENT == 'production' or DEBUG == True:
-    
+    pass
 
 ALLOWED_HOSTS = ['*','djangoecommercewebsite-production.up.railway.app','https://djangoecommercewebsite-production.up.railway.app']
 CSRF_TRUSTED_ORIGINS = ['https://djangoecommercewebsite-production.up.railway.app']
